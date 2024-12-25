@@ -1,4 +1,5 @@
 #include <linux/module.h>
+#include <linux/version.h>
 #include <linux/init.h>
 #include <linux/fs.h>
 #include <linux/cdev.h>
@@ -154,27 +155,28 @@ static int __init ModuleInit(void) {
     /* Initialize device file */   
     cdev_init(&my_device, &fops);
 
-    /* Register device to kernel */
-    if(cdev_add(&my_device, my_device_nr, 1) == -1) {
-        printk("Registering of device to kernel failed!\n");
-        goto AddError;
-    }
+	/* Regisering device to kernel */
+	if(cdev_add(&my_device, my_device_nr, 1) == -1) {
+		printk("lcd-driver - Registering of device to kernel failed!\n");
+		goto AddError;
+	}
 
-    /* Initialize GPIOs */
-    printk("lcd-driver - GPIO Init\n");
-    for(i=0; i<10; i++){
-        if(gpio_request(gpios[i], names[i])){
-            printk("lcd-driver - Error Init GPIO %d \n", gpios[i]);
-            goto GpioInitError;
-        }
-    }
-    printk("lcd-driver - GPIO Init\n");
-    for(i=0; i<10; i++){
-        if(gpio_direction_output(gpios[i], 0)){
-            printk("lcd-driver - Error setting GPIO %d to output\n", i);
-            goto GpioDirectionError;
-        }
-    }
+	/* Initialize GPIOs */
+	printk("lcd-driver - GPIO Init\n");
+	for(i=0; i<10; i++) {
+		if(gpio_request(gpios[i], names[i])) {
+			printk("lcd-driver - Error Init GPIO %d\n", gpios[i]);
+			goto GpioInitError;
+		}
+	}
+
+	printk("lcd-driver - Set GPIOs to output\n");
+	for(i=0; i<10; i++) {
+		if(gpio_direction_output(gpios[i], 0)) {
+			printk("lcd-driver - Error setting GPIO %d to output\n", i);
+			goto GpioDirectionError;
+		}
+	}
 
     /* Init the dispay */
     lcd_command(0x30); /* Set the display for 8 bit data interface */
@@ -197,25 +199,25 @@ AddError:
 FileError:
     class_destroy(my_class);
 ClassError:
-    unregister_chrdev(my_device_nr, DRIVER_NAME);
-    return -1;
+	unregister_chrdev_region(my_device_nr, 1);
+	return -1;
 }
 
 /**
  * @brief This function is called, when the module is removed from the kernel 
  */
 static void __exit ModuleExit(void) {
-    int i;
-    lcd_command(0x1);   /* Clear the display */
-    for(i=0; i<10; i++){
-        gpio_set_value(gpios[i],0);
-        gpio_free(gpios[i]);
-    }
-    cdev_del(&my_device);
-    device_destroy(my_class, my_device_nr);
-    class_destroy(my_class);
-    unregister_chrdev(my_device_nr, DRIVER_NAME);
-    printk("Goodbye, Kernel\n");
+	int i;
+	lcd_command(0x1);	/* Clear the display */
+	for(i=0; i<10; i++){
+		gpio_set_value(gpios[i], 0);
+		gpio_free(gpios[i]);
+	}
+	cdev_del(&my_device);
+	device_destroy(my_class, my_device_nr);
+	class_destroy(my_class);
+	unregister_chrdev_region(my_device_nr, 1);
+	printk("Goodbye, Kernel\n");
 }
 
 module_init(ModuleInit);

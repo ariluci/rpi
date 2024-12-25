@@ -99,8 +99,7 @@ static struct file_operations fops = {
  * @brief This function is called, when the module is loaded into the kernel 
  */
 static int __init ModuleInit(void) {
-    int retval;	
-    printk("Hello, Kernel\n");
+	printk("Hello, Kernel!\n");
 
     /* Allocate a device nr */
     if(alloc_chrdev_region(&my_device_nr, 0, 1, DRIVER_NAME) < 0) {
@@ -164,22 +163,22 @@ AddError:
 FileError:
     class_destroy(my_class);
 ClassError:
-    unregister_chrdev(my_device_nr, DRIVER_NAME);
-    return -1;
+	unregister_chrdev_region(my_device_nr, 1);
+	return -1;
 }
 
 /**
  * @brief This function is called, when the module is removed from the kernel 
  */
 static void __exit ModuleExit(void) {
-    gpio_set_value(4,0);
-    gpio_free(17);
-    gpio_free(4);
-    cdev_del(&my_device);
-    device_destroy(my_class, my_device_nr);
-    class_destroy(my_class);
-    unregister_chrdev(my_device_nr, DRIVER_NAME);
-    printk("Goodbye, Kernel\n");
+	gpio_set_value(4, 0);
+	gpio_free(17);
+	gpio_free(4);
+	cdev_del(&my_device);
+	device_destroy(my_class, my_device_nr);
+	class_destroy(my_class);
+	unregister_chrdev_region(my_device_nr, 1);
+	printk("Goodbye, Kernel\n");
 }
 
 module_init(ModuleInit);

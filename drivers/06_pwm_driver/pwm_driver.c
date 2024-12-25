@@ -33,14 +33,14 @@ static ssize_t driver_write(struct file *File, const char *user_buffer, size_t c
     /* Get amount of data to copy */
     to_copy = min(count, sizeof(value));
 
-    /* Copy data from user */
-    not_copied = copy_from_user(&value, user_buffer, to_copy);
- 
-    /* Set PWM on time */
-    if(value < 'a' || value > 'j')
-	    printk("Ivalid Value\n");
-    else
-	    pwm_config(pwm0, 1000000000 * (value-'a'), 1000000000);
+	/* Copy data to user */
+	not_copied = copy_from_user(&value, user_buffer, to_copy);
+
+	/* Set PWM on time */
+	if(value < 'a' || value > 'j')
+		printk("Invalid Value\n");
+	else
+		pwm_config(pwm0, 100000000 * (value - 'a'), 1000000000);
 
     /* Calculate data */
     delta = to_copy - not_copied;
@@ -75,15 +75,14 @@ static struct file_operations fops = {
  * @brief This function is called, when the module is loaded into the kernel 
  */
 static int __init ModuleInit(void) {
-    int retval;	
-    printk("Hello, Kernel\n");
+	printk("Hello, Kernel!\n");
 
-    /* Allocate a device nr */
+	/* Allocate a device nr */
     if(alloc_chrdev_region(&my_device_nr, 0, 1, DRIVER_NAME) < 0) {
-        printk("Device Nr. could not be allocated ! \n");
+		printk("Device Nr. could not be allocated!\n");
         return -1;
     }
-    printk("read_write - Device Nr. Major: %d, Minor: %d was registered! \n", my_device_nr >> 20, my_device_nr && 0xfffff);
+	printk("read_write - Device Nr. Major: %d, Minor: %d was registered!\n", my_device_nr >> 20, my_device_nr && 0xfffff);
     
     /* Create device class */
     if((my_class = class_create(THIS_MODULE, DRIVER_CLASS)) == NULL) {
@@ -119,21 +118,21 @@ AddError:
 FileError:
     class_destroy(my_class);
 ClassError:
-    unregister_chrdev(my_device_nr, DRIVER_NAME);
-    return -1;
+	unregister_chrdev_region(my_device_nr, 1);
+	return -1;
 }
 
 /**
  * @brief This function is called, when the module is removed from the kernel 
  */
 static void __exit ModuleExit(void) {
-    pwm_disable(pwm0);
-    pwm_free(pwm0);
-    cdev_del(&my_device);
-    device_destroy(my_class, my_device_nr);
-    class_destroy(my_class);
-    unregister_chrdev(my_device_nr, DRIVER_NAME);
-    printk("Goodbye, Kernel\n");
+	pwm_disable(pwm0);
+	pwm_free(pwm0);
+	cdev_del(&my_device);
+	device_destroy(my_class, my_device_nr);
+	class_destroy(my_class);
+	unregister_chrdev_region(my_device_nr, 1);
+	printk("Goodbye, Kernel\n");
 }
 
 module_init(ModuleInit);
