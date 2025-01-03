@@ -1,7 +1,7 @@
 /* It's better to manage files from userspace not kernel drivers 
  * This is however usefull for example if you have a device 
  * and the driver has to load firmware that changes ofter into the device. 
- * In this example it is prefered to do it via driver than to recomple the driver
+ * In this example it is prefered to do it via driver than to recomple the driver.
  */ 
 #include <linux/module.h>
 #include <linux/init.h>
