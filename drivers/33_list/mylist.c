@@ -33,7 +33,7 @@ static int __init ModuleInit(void) {
 	list_add_tail(&tmp->list, &my_list);
 
 	tmp = kmalloc(sizeof(struct my_data), GFP_KERNEL);
-	strcpy(&tmp->text, "Third Element");
+	strcpy(tmp->text, "Third Element");
 	list_add_tail(&tmp->list, &my_list);
 
 	list_for_each(ptr, &my_list) {
