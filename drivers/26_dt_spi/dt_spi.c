@@ -48,7 +48,7 @@ static const struct iio_info my_adc_info = {
 
 /* Declare the probe and remvoe functions */
 static int my_adc_probe(struct spi_device *client);
-static int my_adc_remove(struct spi_device *client);
+static void my_adc_remove(struct spi_device *client);
 
 static struct of_device_id my_driver_ids[] = {
 	{
@@ -124,7 +124,7 @@ static int my_adc_probe(struct spi_device *client) {
 /**
  * @brief This function is called on unloading the driver
  */
-static int my_adc_remove(struct spi_device *client) {
+static void my_adc_remove(struct spi_device *client) {
 	struct iio_dev *indio_dev;
 	struct my_adc *adc;
 	u8 buffer[2];
@@ -138,7 +138,6 @@ static int my_adc_remove(struct spi_device *client) {
 
 	spi_write(adc->client, buffer, 2);
 
-	return 0;
 }
 
 /* This will create the init andexit functions automatically */
