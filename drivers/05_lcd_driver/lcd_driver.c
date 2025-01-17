@@ -26,16 +26,16 @@ static char lcd_buffer[17];
 
 /* Pinout for LCD Display */
 unsigned int gpios[] = {
-    3,  /* Enable pin */
-    2,  /* Register select pin */
+    19,  /* Enable pin */
+    26,  /* Register select pin */
     4,  /* Data Pin 0 */
     17, /* Data Pin 1 */
     27, /* Data Pin 2 */
     22, /* Data Pin 3 */
-    10, /* Data Pin 4 */
-    9,  /* Data Pin 5 */
-    11, /* Data Pin 6 */
-    5,  /* Data Pin 7 */  
+    13, /* Data Pin 4 */
+    6,  /* Data Pin 5 */
+    5, /* Data Pin 6 */
+    11,  /* Data Pin 7 */  
 };
 
 #define REGISTER_SELECT gpios[1]
